@@ -1,0 +1,98 @@
+﻿<Window x:Class="BD_CLIENT.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+        xmlns:local="clr-namespace:BD_CLIENT"
+        xmlns:conv="clr-namespace:BD_CLIENT.ViewModel.Converters"
+        xmlns:VM="clr-namespace:BD_CLIENT.ViewModel"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding CloseAllCommCommand}"/>
+        </i:EventTrigger> 
+    </i:Interaction.Triggers>
+    <Window.DataContext>
+        <VM:VM/>
+    </Window.DataContext>
+    <Window.Resources>
+        <!--#region     Конвертеры-->
+        <conv:BitColorConv x:Key="BitToColor"/>
+        <!--#endregion-->
+        <ControlTemplate TargetType="Button" x:Key="ButtonTemplate">
+            <Button x:Name="btn" Background="{TemplateBinding Tag, Converter={StaticResource BitToColor}}" Margin="5" Command="{TemplateBinding Command}">
+                <ContentControl x:Name="content" Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"                                
+                                Content="{TemplateBinding Content}">
+                </ContentControl>
+            </Button>            
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid>
+        <TabControl TabStripPlacement="Left">
+            <TabItem Header="Управление">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.5*"></RowDefinition>
+                        <RowDefinition ></RowDefinition>
+                        <RowDefinition ></RowDefinition>
+                        <RowDefinition Height="0.5*"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                       
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">IP адрес платы детекторов</Label>
+                    <Viewbox Grid.Row="0" Grid.Column="1" >
+                        <TextBox   BorderThickness="1" BorderBrush="Black"
+                              Text="{Binding IP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged }"
+                              VerticalContentAlignment="Center"
+                              HorizontalContentAlignment="Center" ></TextBox>
+                    </Viewbox>                    
+                    <Button Grid.Row="1"  Template="{StaticResource ButtonTemplate}" Content="Порт 5000" Tag="{Binding Connected5000}"
+                            Command="{Binding Connect5000Command}"></Button>
+                    <Button Grid.Row="1" Grid.Column="1"  Template="{StaticResource ButtonTemplate}" Content="Порт 5001" Tag="{Binding Connected5001}"
+                            Command="{Binding Connect5001Command}"></Button>
+                    <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Template="{StaticResource ButtonTemplate}"
+                                Command="{Binding StartConstScanCommand}">
+                            <TextBlock TextWrapping="Wrap">Старт непрерывного сканирования</TextBlock>
+                        </Button>
+                    </Grid>
+                    <ListBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3">
+                        <ListBoxItem>
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Задержка </Label>
+                            </StackPanel>
+                        </ListBoxItem>
+                    </ListBox>
+                        
+                    
+                    <ScrollViewer Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="3" >
+                        <Border  BorderBrush="Black" BorderThickness="1" Margin="5">
+                            <TextBlock   Text="{Binding EventMessage}" TextWrapping="Wrap" ></TextBlock>
+                        </Border>
+                    </ScrollViewer>
+                    
+                    
+                </Grid>
+                
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
