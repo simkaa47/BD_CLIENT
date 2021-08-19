@@ -73,6 +73,14 @@
                                 Command="{Binding StartConstScanCommand}">
                             <TextBlock TextWrapping="Wrap">Старт непрерывного сканирования</TextBlock>
                         </Button>
+                        <Button Grid.Column="1" Template="{StaticResource ButtonTemplate}"
+                                Command="{Binding StopConstScanCommand}">
+                            <TextBlock TextWrapping="Wrap">Стоп непрерывного сканирования</TextBlock>
+                        </Button>
+                        <Button Grid.Column="2" Template="{StaticResource ButtonTemplate}"
+                                Command="{Binding SingleScanCommand}">
+                            <TextBlock TextWrapping="Wrap">Одиночное сканирование</TextBlock>
+                        </Button>
                     </Grid>
                     <ListBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3">
                         <ListBoxItem>
@@ -81,14 +89,26 @@
                             </StackPanel>
                         </ListBoxItem>
                     </ListBox>
-                        
-                    
-                    <ScrollViewer Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="3" >
-                        <Border  BorderBrush="Black" BorderThickness="1" Margin="5">
-                            <TextBlock   Text="{Binding EventMessage}" TextWrapping="Wrap" ></TextBlock>
+                    <Grid Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="3">
+                        <Label>Состояние подключений к портам:</Label>
+                        <Border   BorderBrush="Black" BorderThickness="1" Margin="5,20,5,5">
+                            <ScrollViewer  >
+                                <TextBlock   Text="{Binding EventMessage}" TextWrapping="Wrap" ></TextBlock>
+                            </ScrollViewer>
                         </Border>
-                    </ScrollViewer>
+                    </Grid>
                     
+                    
+                    <Grid Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="4">
+                        <Label>Ответы от порта 5000:</Label>
+                        <Border BorderBrush="Black" BorderThickness="1" Margin="5,20,5,5">
+                            <ScrollViewer >
+                                <TextBlock TextWrapping="Wrap" Text="{Binding PortAnswer5000}"></TextBlock>
+                            </ScrollViewer>
+                            
+                        </Border>
+                        
+                    </Grid>                  
                     
                 </Grid>
                 

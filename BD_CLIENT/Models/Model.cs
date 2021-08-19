@@ -8,7 +8,7 @@ namespace BD_CLIENT.Models
     class Model
     {
         
-        public event ClientEventHandler EventModelMessage;
+        public event ClientEventHandler Port5000AnswerEvent;
         
         public ClientBase Client5000 { get; set; }
         public ClientBase Client5001 { get; set; }
@@ -25,8 +25,16 @@ namespace BD_CLIENT.Models
             {
                 if (CheckIp(value))_ip = value;
             }
-        } 
+        }
         #endregion
+
+        #region Ответ от порта 5000
+        /// <summary>
+        /// Ответ от порта 5000
+        /// </summary>
+        public string Port5000Answer { get; set; }
+        #endregion
+
 
         public async  void ConnectDisconnect5000()
         {
@@ -45,6 +53,7 @@ namespace BD_CLIENT.Models
             Client5000.Disconnect();
             Client5001.Disconnect();
         }
+
 
         #region Метод проверки корректности ip
         /// <summary>
@@ -66,13 +75,43 @@ namespace BD_CLIENT.Models
         }
         #endregion
 
+        #region Старт непрервыного сканирования
         public void StartConstScan()
         {
             if (Client5000.Connected)
             {
-                Client5000.Write(GetCommand("$cc")); 
+                Client5000.Write(GetCommand("$cc"));
             }
         }
+        #endregion
+
+        #region Стоп непрервыного сканирования
+        public void StopConstScan()
+        {
+            if (Client5000.Connected)
+            {
+                Client5000.Write(GetCommand("@"));
+            }
+        }
+        #endregion
+
+        #region Стоп непрервыного сканирования
+        public void SingleScan()
+        {
+            if (Client5000.Connected)
+            {
+                Client5000.Write(GetCommand("$cs"));
+            }
+        }
+        #endregion
+
+        #region Получить ответ от порта 5000
+        void GetAnswer(int bytesNum)
+        {
+            Port5000Answer = Encoding.ASCII.GetString(Client5000.InBuf, 0, bytesNum);
+            Port5000AnswerEvent?.Invoke(Port5000Answer);        
+        }
+        #endregion
 
         byte[] GetCommand(string str)
         {
@@ -85,7 +124,7 @@ namespace BD_CLIENT.Models
         {
             Client5000 = new ClientBase();
             Client5001 = new ClientBase();
-            
+            Client5000.RecognizeInputBytes = GetAnswer;
         } 
         #endregion
     }

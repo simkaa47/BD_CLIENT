@@ -12,6 +12,7 @@ namespace BD_CLIENT.ViewModel
         {
             Model.Client5000.ClientEvent += UpdateMessage;
             Model.Client5001.ClientEvent += UpdateMessage;
+            Model.Port5000AnswerEvent += Port5000AnswerUpdate;
         }
         Model Model { get; set; } = new Model();
         #region Команды
@@ -63,6 +64,22 @@ namespace BD_CLIENT.ViewModel
         }
         #endregion
 
+        #region Команда "Стоп непрерывного сканирования"
+        RelayCommand _stopConstScanCommand;
+        public RelayCommand StopConstScanCommand
+        {
+            get => _stopConstScanCommand ?? (_stopConstScanCommand = new RelayCommand(p => Model.StopConstScan(), p => true));
+        }
+        #endregion
+
+        #region Команда "Одиноченое сканирование"
+        RelayCommand _singleScanCommand;
+        public RelayCommand SingleScanCommand
+        {
+            get => _singleScanCommand ?? (_singleScanCommand = new RelayCommand(p => Model.SingleScan(), p => true));
+        }
+        #endregion
+
         #endregion
 
         #region Адрес платы
@@ -75,6 +92,15 @@ namespace BD_CLIENT.ViewModel
                 Model.IP = value;                
                 Set(ref ip, Model.IP);
             }
+        }
+        #endregion
+
+        #region Строка ответов от порта 5000
+        string _portAnswer5000="";
+        public string PortAnswer5000
+        {
+            get => _portAnswer5000;
+            set { Set(ref _portAnswer5000, value); }
         }
         #endregion
 
@@ -102,9 +128,16 @@ namespace BD_CLIENT.ViewModel
             EventMessage = EventMessage + DateTime.Now.ToString("T") + " : "  + message + "\r" + "\n";
             Connected5000 = Model.Client5000.Connected;
             Connected5001 = Model.Client5001.Connected;
-        } 
+        }
         #endregion
 
-        
+        #region Обновить строку ответов от порта 5000
+        void Port5000AnswerUpdate(string message)
+        {
+            PortAnswer5000 = PortAnswer5000 + DateTime.Now.ToString("T") + " : "+ message;
+        }
+        #endregion
+
+
     }
 }
