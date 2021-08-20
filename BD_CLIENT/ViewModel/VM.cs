@@ -98,6 +98,30 @@ namespace BD_CLIENT.ViewModel
         }
         #endregion
 
+        #region Команда "Установить задержку экспозиции"
+        RelayCommand _setExpDelCommand;
+        public RelayCommand SetExpDelCommand
+        {
+            get => _setExpDelCommand ?? (_setExpDelCommand = new RelayCommand(p => Model.SetExpDelay(), p => true));
+        }
+        #endregion
+
+        #region Команда "Установить время экспозиции"
+        RelayCommand _setExpTimeCommand;
+        public RelayCommand SetExpTimeCommand
+        {
+            get => _setExpTimeCommand ?? (_setExpTimeCommand = new RelayCommand(p => Model.SetExpTime(), p => true));
+        }
+        #endregion
+
+        #region Команда "Получить статус системы"
+        RelayCommand _getSysStatusCommand;
+        public RelayCommand GetSysStatusCommand
+        {
+            get => _getSysStatusCommand ?? (_getSysStatusCommand = new RelayCommand(p => Model.GetSysSytatus(), p => true));
+        }
+        #endregion
+
         #endregion
 
         #region Адрес платы
@@ -166,6 +190,31 @@ namespace BD_CLIENT.ViewModel
             set {
                 Model.DivGain = value;
                 Set(ref divGain, Model.DivGain);
+            }
+        }
+        #endregion
+
+        #region Задержка экспозиции
+        int expDelay;
+        public int ExpDelay
+        {
+            get => Model.ExpDelay;
+            set {
+                Model.ExpDelay = value;
+                Set(ref expDelay, Model.ExpDelay);
+            }            
+        }
+        #endregion
+
+        #region Время экспозиции
+        int _expTime;
+        public int ExpTime
+        {
+            get => Model.ExpTime;
+            set
+            {
+                Model.ExpTime = value;
+                Set(ref _expTime, Model.ExpTime);
             }
         }
         #endregion

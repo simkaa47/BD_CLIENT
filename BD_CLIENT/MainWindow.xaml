@@ -47,7 +47,7 @@
                         <RowDefinition Height="0.5*"></RowDefinition>
                         <RowDefinition ></RowDefinition>
                         <RowDefinition ></RowDefinition>
-                        <RowDefinition Height="0.5*"></RowDefinition>
+                        <RowDefinition ></RowDefinition>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
@@ -86,6 +86,15 @@
                             <TextBlock TextWrapping="Wrap">Одиночное сканирование</TextBlock>
                         </Button>
                     </Grid>
+                    <Grid Grid.Row="3" Grid.ColumnSpan="2">
+                        <Button Template="{StaticResource ButtonTemplate}"
+                                IsEnabled="{Binding Connected5000}"
+                                Command="{Binding GetSysStatusCommand}">
+                            <TextBlock Text="Получить статус системы"
+                                       TextWrapping="Wrap">                                
+                            </TextBlock>
+                        </Button>
+                    </Grid>
                     <ListBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3">
                         <!--#region Количество сенсоров -->
                         <ListBoxItem HorizontalContentAlignment="Stretch" >
@@ -95,7 +104,7 @@
                                         IsEnabled="{Binding Connected5000}" 
                                         DockPanel.Dock="Right"
                                         Command="{Binding SetNumSensCommand}">--></Button>
-                                <TextBox Width="50" VerticalContentAlignment="Center"  
+                                <TextBox Width="80" VerticalContentAlignment="Center"  
                                          HorizontalContentAlignment="Center" 
                                          HorizontalAlignment="Right" 
                                          Text="{Binding NumDet, Mode=TwoWay}"></TextBox>
@@ -111,7 +120,7 @@
                                         IsEnabled="{Binding Connected5000}" 
                                         DockPanel.Dock="Right"
                                         Command="{Binding SetDivGainCommand}">--></Button>
-                                <TextBox Width="50" VerticalContentAlignment="Center"  
+                                <TextBox Width="80" VerticalContentAlignment="Center"  
                                          HorizontalContentAlignment="Center" 
                                          HorizontalAlignment="Right" 
                                          Text="{Binding DivGain, Mode=TwoWay}"></TextBox>
@@ -126,11 +135,27 @@
                                 <Button Width="50"  HorizontalAlignment="Right"
                                         IsEnabled="{Binding Connected5000}" 
                                         DockPanel.Dock="Right"
-                                        Command="{Binding SetDivGainCommand}">--></Button>
-                                <TextBox Width="50" VerticalContentAlignment="Center"  
+                                        Command="{Binding SetExpDelCommand}">--></Button>
+                                <TextBox Width="80" VerticalContentAlignment="Center"  
                                          HorizontalContentAlignment="Center" 
                                          HorizontalAlignment="Right" 
-                                         Text="{Binding DivGain, Mode=TwoWay}"></TextBox>
+                                         Text="{Binding ExpDelay, Mode=TwoWay}"></TextBox>
+
+                            </DockPanel>
+                        </ListBoxItem>
+                        <!--#endregion-->
+                        <!--#region Время экспозиции -->
+                        <ListBoxItem HorizontalContentAlignment="Stretch" >
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left">Время экспозиции, мкс</Label>
+                                <Button Width="50"  HorizontalAlignment="Right"
+                                        IsEnabled="{Binding Connected5000}" 
+                                        DockPanel.Dock="Right"
+                                        Command="{Binding SetExpTimeCommand}">--></Button>
+                                <TextBox Width="80" VerticalContentAlignment="Center"  
+                                         HorizontalContentAlignment="Center" 
+                                         HorizontalAlignment="Right" 
+                                         Text="{Binding ExpTime, Mode=TwoWay}"></TextBox>
 
                             </DockPanel>
                         </ListBoxItem>

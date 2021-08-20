@@ -77,6 +77,15 @@ namespace BD_CLIENT.Models
             set { if (value >= 10 && value <= 100) expDelay = value; }
         }
         #endregion
+
+        #region Время экспозиции
+        int _expTime = 20000;
+        public int ExpTime
+        {
+            get => _expTime;
+            set { if (value >= 500 && value <= 1000000) _expTime = value; }
+        }
+        #endregion
         public async  void ConnectDisconnect5000()
         {
             if (!Client5000.Connected) await Task.Run(() => { Client5000.Connect(5000,IP); });
@@ -120,6 +129,16 @@ namespace BD_CLIENT.Models
             if (Client5000.Connected)
             {
                 Client5000.Write(GetCommand("$1d" + ExpDelay.ToString()));
+            }
+        }
+        #endregion
+
+        #region Записать время экспозиции
+        public void SetExpTime()
+        {
+            if (Client5000.Connected)
+            {
+                Client5000.Write(GetCommand("$1e" + ExpTime.ToString()));
             }
         }
         #endregion
@@ -215,6 +234,16 @@ namespace BD_CLIENT.Models
                     }
                     processing = false;
                                         
+            }
+        }
+        #endregion
+
+        #region Получить статус системы
+        public void GetSysSytatus()
+        {
+            if (Client5000.Connected)
+            {
+                Client5000.Write(GetCommand("$sa"));
             }
         }
         #endregion
