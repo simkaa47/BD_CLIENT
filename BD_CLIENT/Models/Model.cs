@@ -1,14 +1,17 @@
-﻿using System;
+﻿using BD_CLIENT.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BD_CLIENT.Models
 {
     class Model
     {
-        
+        bool processing;
         public event ClientEventHandler Port5000AnswerEvent;
+        public Action<int> ReceiveDetHandler;
         
         public ClientBase Client5000 { get; set; }
         public ClientBase Client5001 { get; set; }
@@ -35,7 +38,45 @@ namespace BD_CLIENT.Models
         public string Port5000Answer { get; set; }
         #endregion
 
+        #region Данные детекторов
+        public DataPoint[] Detectors { get; set; } = new DataPoint[1000];
+        #endregion
 
+        #region Количество сенсоров
+        int numSens = 32;
+        /// <summary>
+        /// Количество сенсоров
+        /// </summary>
+        public int NumSens
+        {
+            get => numSens;
+            set
+            {
+                if (value >= 32 && value % 4 == 0 && value<988) numSens = value;
+            }
+        }
+        #endregion
+
+        #region Делитель усиления
+        int divGain = 1;
+        public int DivGain
+        {
+            get => divGain;
+            set
+            {
+                if (value >= 1 && value <= 7) divGain = value;
+            }
+        }
+        #endregion
+
+        #region Задержка экспозиции
+        int expDelay = 10;
+        public int ExpDelay
+        {
+            get => expDelay;
+            set { if (value >= 10 && value <= 100) expDelay = value; }
+        }
+        #endregion
         public async  void ConnectDisconnect5000()
         {
             if (!Client5000.Connected) await Task.Run(() => { Client5000.Connect(5000,IP); });
@@ -53,7 +94,35 @@ namespace BD_CLIENT.Models
             Client5000.Disconnect();
             Client5001.Disconnect();
         }
+        #region Записать делитель усиления
+        public void SetDivGain()
+        {
+            if (Client5000.Connected)
+            {
+                Client5000.Write(GetCommand("$1r" + DivGain.ToString()));
+            }
+        }
+        #endregion
 
+        #region Записать количество детекторов
+        public void SetNumSens()
+        {
+            if (Client5000.Connected)
+            {
+                Client5000.Write(GetCommand("$1s" + NumSens.ToString()));
+            }
+        }
+        #endregion
+
+        #region Записать задержку экспозиции
+        public void SetExpDelay()
+        {
+            if (Client5000.Connected)
+            {
+                Client5000.Write(GetCommand("$1d" + ExpDelay.ToString()));
+            }
+        }
+        #endregion
 
         #region Метод проверки корректности ip
         /// <summary>
@@ -113,6 +182,43 @@ namespace BD_CLIENT.Models
         }
         #endregion
 
+        #region Получить ответ от порта 5001
+         void   GetDetectors(int numBytes)
+        {
+            if (!processing)
+            {
+                
+                    processing = true;
+                    bool markOk = true;
+                    for (int i = 0; i < 4; i++) markOk = markOk && Client5001.InBuf[i] == 0;
+                    for (int i = 4; i < 8; i++) markOk = markOk && Client5001.InBuf[i] == 255;
+                    if (markOk)
+                    {
+                        int i = 0;
+                        var bytes = new byte[2];                        
+                        for ( i = 8; i < Client5001.InBuf.Length; i += 2)
+                        {
+                            if (Client5001.InBuf[i] == 0)
+                            {
+                                if (i != 72)
+                                {
+                                    Thread.Sleep(1);
+                                }
+                                break;
+                            }
+                            bytes[0] = Client5001.InBuf[i + 1];
+                            bytes[1] = Client5001.InBuf[i];
+                            var dp = new DataPoint { x = (i - 8) / 2, y = BitConverter.ToUInt16(bytes, 0) };
+                            Detectors[(i-8)/2] = dp;
+                        }
+                        ReceiveDetHandler?.Invoke(NumSens);
+                    }
+                    processing = false;
+                                        
+            }
+        }
+        #endregion
+
         byte[] GetCommand(string str)
         {
             string cmd = str + "\r\n";
@@ -125,6 +231,7 @@ namespace BD_CLIENT.Models
             Client5000 = new ClientBase();
             Client5001 = new ClientBase();
             Client5000.RecognizeInputBytes = GetAnswer;
+            Client5001.RecognizeInputBytes = GetDetectors;
         } 
         #endregion
     }

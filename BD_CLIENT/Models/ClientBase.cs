@@ -86,13 +86,17 @@ namespace BD_CLIENT.Models
             }
             catch (Exception ex)
             {
-                if (Connected || connecting)ClientEvent?.Invoke($"{Ip}:{Port}: {ex.Message}");
+                if (Connected|| connecting)
+                {
+                    Connected = false;
+                    connecting = false;
+                    ClientEvent?.Invoke($"{Ip}:{Port}: {ex.Message}"); 
+                }
             }
             finally
-            {
+            { 
                 client?.Close();
-                Connected = false;
-                connecting = false;
+               
             }
         } 
         #endregion
@@ -100,17 +104,20 @@ namespace BD_CLIENT.Models
         #region Чтение из потока (выполняется синхронно)
         void Read()
         {
+            int num = 0;
+            
             do
             {
-                int num = stream.Read(InBuf, 0, InBuf.Length);
+                num = stream.Read(InBuf, 0, InBuf.Length);
                 if (num == 0)
                 {
                     ClientEvent?.Invoke($"{Ip}:{Port}: удаленный сервер разорвал соединение.");
                     Connected = false;
                 }
                 else RecognizeInputBytes?.Invoke(num);
-                
+
             } while (stream.DataAvailable);
+            
         }
         #endregion
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using BD_CLIENT.Infrastructure;
 using BD_CLIENT.Models;
 
@@ -13,6 +14,7 @@ namespace BD_CLIENT.ViewModel
             Model.Client5000.ClientEvent += UpdateMessage;
             Model.Client5001.ClientEvent += UpdateMessage;
             Model.Port5000AnswerEvent += Port5000AnswerUpdate;
+            Model.ReceiveDetHandler += UpdateDetectorsValue;
         }
         Model Model { get; set; } = new Model();
         #region Команды
@@ -80,6 +82,22 @@ namespace BD_CLIENT.ViewModel
         }
         #endregion
 
+        #region Команда установить кол-во сенсоров
+        RelayCommand _setNumSensCommand;
+        public RelayCommand SetNumSensCommand
+        {
+            get => _setNumSensCommand ?? (_setNumSensCommand = new RelayCommand(p => Model.SetNumSens(), p => true));
+        }
+        #endregion
+
+        #region Команда "Установить делитель усиления"
+        RelayCommand _setDivGainCommand;
+        public RelayCommand SetDivGainCommand
+        {
+            get => _setDivGainCommand ?? (_setDivGainCommand = new RelayCommand(p => Model.SetDivGain(), p => true));
+        }
+        #endregion
+
         #endregion
 
         #region Адрес платы
@@ -119,7 +137,37 @@ namespace BD_CLIENT.ViewModel
         /// <summary>
         /// Статус соединения с портом 5001
         /// </summary>
-        public bool Connected5001 { get => _connected5001;set { Set(ref _connected5001, value); } }        
+        public bool Connected5001 { get => _connected5001;set { Set(ref _connected5001, value); } }
+        #endregion
+
+        #region Данные детектров
+        IEnumerable<DataPoint> _detectors;
+        public IEnumerable<DataPoint> Detectors { get => _detectors; set => Set(ref _detectors, value); }
+        #endregion
+
+        #region Количеств детекторов
+        int numDet;
+        public int NumDet
+        {
+            get => Model.NumSens;
+            set 
+            {
+                Model.NumSens = value;                
+                Set(ref numDet, Model.NumSens); 
+            }
+        }
+        #endregion
+
+        #region Делитель усиления АЦП
+        int divGain;
+        public int DivGain
+        {
+            get => Model.DivGain;
+            set {
+                Model.DivGain = value;
+                Set(ref divGain, Model.DivGain);
+            }
+        }
         #endregion
 
         #region Обновить строку состояния
@@ -137,6 +185,19 @@ namespace BD_CLIENT.ViewModel
             PortAnswer5000 = PortAnswer5000 + DateTime.Now.ToString("T") + " : "+ message;
         }
         #endregion
+
+        #region Обновить данные детекторов
+        void UpdateDetectorsValue(int length)
+        {
+            var dataPoints = new List<DataPoint>(length);
+            for (int i = 0; i < length; i++)
+            {
+                dataPoints.Add(Model.Detectors[i]);
+            }                       
+            Detectors = dataPoints;
+        }
+        #endregion
+
 
 
     }

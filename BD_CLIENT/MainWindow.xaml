@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:BD_CLIENT"
         xmlns:conv="clr-namespace:BD_CLIENT.ViewModel.Converters"
         xmlns:VM="clr-namespace:BD_CLIENT.ViewModel"
+        xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     
@@ -70,24 +71,70 @@
                             <ColumnDefinition></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Template="{StaticResource ButtonTemplate}"
-                                Command="{Binding StartConstScanCommand}">
+                                Command="{Binding StartConstScanCommand}"
+                                 IsEnabled="{Binding Connected5000}" >
                             <TextBlock TextWrapping="Wrap">Старт непрерывного сканирования</TextBlock>
                         </Button>
                         <Button Grid.Column="1" Template="{StaticResource ButtonTemplate}"
-                                Command="{Binding StopConstScanCommand}">
+                                Command="{Binding StopConstScanCommand}"
+                                 IsEnabled="{Binding Connected5000}" >
                             <TextBlock TextWrapping="Wrap">Стоп непрерывного сканирования</TextBlock>
                         </Button>
                         <Button Grid.Column="2" Template="{StaticResource ButtonTemplate}"
-                                Command="{Binding SingleScanCommand}">
+                                Command="{Binding SingleScanCommand}"
+                                IsEnabled="{Binding Connected5000}" >
                             <TextBlock TextWrapping="Wrap">Одиночное сканирование</TextBlock>
                         </Button>
                     </Grid>
                     <ListBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3">
-                        <ListBoxItem>
-                            <StackPanel Orientation="Horizontal">
-                                <Label>Задержка </Label>
-                            </StackPanel>
+                        <!--#region Количество сенсоров -->
+                        <ListBoxItem HorizontalContentAlignment="Stretch" >
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left">Количество сенсоров</Label>
+                                <Button Width="50"  HorizontalAlignment="Right"
+                                        IsEnabled="{Binding Connected5000}" 
+                                        DockPanel.Dock="Right"
+                                        Command="{Binding SetNumSensCommand}">--></Button>
+                                <TextBox Width="50" VerticalContentAlignment="Center"  
+                                         HorizontalContentAlignment="Center" 
+                                         HorizontalAlignment="Right" 
+                                         Text="{Binding NumDet, Mode=TwoWay}"></TextBox>
+
+                            </DockPanel>
                         </ListBoxItem>
+                        <!--#endregion-->
+                        <!--#region Делитель усиления -->
+                        <ListBoxItem HorizontalContentAlignment="Stretch" >
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left">Делитель усиления каналов АЦП</Label>
+                                <Button Width="50"  HorizontalAlignment="Right"
+                                        IsEnabled="{Binding Connected5000}" 
+                                        DockPanel.Dock="Right"
+                                        Command="{Binding SetDivGainCommand}">--></Button>
+                                <TextBox Width="50" VerticalContentAlignment="Center"  
+                                         HorizontalContentAlignment="Center" 
+                                         HorizontalAlignment="Right" 
+                                         Text="{Binding DivGain, Mode=TwoWay}"></TextBox>
+
+                            </DockPanel>
+                        </ListBoxItem>
+                        <!--#endregion-->
+                        <!--#region Задержка экспозиции -->
+                        <ListBoxItem HorizontalContentAlignment="Stretch" >
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left">Задержка экспозиции, мкс</Label>
+                                <Button Width="50"  HorizontalAlignment="Right"
+                                        IsEnabled="{Binding Connected5000}" 
+                                        DockPanel.Dock="Right"
+                                        Command="{Binding SetDivGainCommand}">--></Button>
+                                <TextBox Width="50" VerticalContentAlignment="Center"  
+                                         HorizontalContentAlignment="Center" 
+                                         HorizontalAlignment="Right" 
+                                         Text="{Binding DivGain, Mode=TwoWay}"></TextBox>
+
+                            </DockPanel>
+                        </ListBoxItem>
+                        <!--#endregion-->
                     </ListBox>
                     <Grid Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="3">
                         <Label>Состояние подключений к портам:</Label>
@@ -112,6 +159,17 @@
                     
                 </Grid>
                 
+            </TabItem>
+            <TabItem Header="Гистограмма">
+                <Grid>
+                    <oxy:Plot PlotAreaBackground="Aqua">
+                        <oxy:Plot.Axes>
+                            <oxy:LinearAxis Title ="Значение"  Position ="Left" AbsoluteMinimum="0"  AbsoluteMaximum ="70000" ></oxy:LinearAxis>
+                            <oxy:LinearAxis Title ="Номер"  Position="Bottom" AbsoluteMinimum="0"  AbsoluteMaximum="1000"></oxy:LinearAxis>
+                        </oxy:Plot.Axes>
+                        <oxy:LinearBarSeries  BarWidth="40"   ItemsSource="{Binding Detectors}" DataFieldX ="x" DataFieldY="y"></oxy:LinearBarSeries>
+                    </oxy:Plot>
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>
