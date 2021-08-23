@@ -1,6 +1,8 @@
 ﻿using BD_CLIENT.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,12 +14,12 @@ namespace BD_CLIENT.Models
         bool processing;
         public event ClientEventHandler Port5000AnswerEvent;
         public Action<int> ReceiveDetHandler;
-        
+        public event Action<string> LogEvent;
         public ClientBase Client5000 { get; set; }
         public ClientBase Client5001 { get; set; }
 
         #region IP адрес платы
-        string _ip="192.168.1.177";
+        string _ip = "192.168.1.177";
         /// <summary>
         /// IP адрес платы
         /// </summary>
@@ -26,7 +28,7 @@ namespace BD_CLIENT.Models
             get => _ip;
             set
             {
-                if (CheckIp(value))_ip = value;
+                if (CheckIp(value)) _ip = value;
             }
         }
         #endregion
@@ -60,7 +62,7 @@ namespace BD_CLIENT.Models
             get => numSens;
             set
             {
-                if (value >= 32 && value % 4 == 0 && value<988) numSens = value;
+                if (value >= 32 && value % 4 == 0 && value < 988) numSens = value;
             }
         }
         #endregion
@@ -92,6 +94,19 @@ namespace BD_CLIENT.Models
         {
             get => _expTime;
             set { if (value >= 500 && value <= 1000000) _expTime = value; }
+        }
+        #endregion
+
+        #region Флаг текущего логирования
+        public bool IsLoging { get; private set; }
+        #endregion
+
+        #region Период логирования данных
+        int _logPeriod = 100;
+        public int LogPeriod
+        {
+            get => _logPeriod;
+            set { if (value >= 10) _logPeriod = value; }
         }
         #endregion
         public async  void ConnectDisconnect5000()
@@ -258,6 +273,97 @@ namespace BD_CLIENT.Models
         }
         #endregion
 
+        #region Логирование данных - старт
+        async void StartLog(string path)
+        {
+            if (Client5001.Connected)
+            {
+                if (!File.Exists(path))
+                {
+                    LogEvent?.Invoke($"Файл {path} не найден!");
+                    return;
+                }
+                await Task.Run(() =>
+                {
+                    var watch = new Stopwatch();
+                    try
+                    {                        
+                        long elapsed = 0;
+                        var strbldr = new StringBuilder();
+                        IsLoging = true;
+                        LogEvent?.Invoke("Старт логирования данных детекторов");                        
+                        watch.Start();
+                        while (IsLoging)
+                        {
+                            if (watch.ElapsedMilliseconds > LogPeriod)
+                            {
+                                GetDetStr(strbldr);
+                                elapsed += watch.ElapsedMilliseconds;
+                                watch.Restart();
+                                if (elapsed > 2000)
+                                {
+                                    WriteLog(path, strbldr.ToString());
+                                    elapsed = 0;
+                                    strbldr.Clear();
+                                }
+                            }
+                            
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        IsLoging = false;
+                        LogEvent?.Invoke(ex.Message);
+                    }
+                    finally
+                    {
+                        LogEvent?.Invoke("Стоп логирования данных детекторов");
+                        watch.Stop();
+                    }
+                });
+            }
+        }
+        #endregion
+
+        #region Логирование данных  - стоп
+        void StopLog()
+        {
+            IsLoging = false;
+        }
+        #endregion
+
+        #region Старт-стоп логирования
+        public void StartSopLog(string path)
+        {
+            if (IsLoging) StopLog();
+            else StartLog(path);
+        }
+        #endregion
+
+        async void WriteLog(string logPath, string str)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(logPath, true, System.Text.Encoding.Default))
+                {
+                    await sw.WriteAsync(str);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        void GetDetStr(StringBuilder builder)
+        {
+            builder.Append(DateTime.Now.ToString("hh:mm:ss:fff") + ";");
+            for(int i = 0; i < NumSens; i++)
+            {
+                builder.Append(Detectors[i].y.ToString() + ";");
+            }
+            builder.AppendLine();
+        }
+
         byte[] GetCommand(string str)
         {
             string cmd = str + "\r\n";
@@ -271,7 +377,12 @@ namespace BD_CLIENT.Models
             Client5001 = new ClientBase();
             Client5000.RecognizeInputBytes = GetAnswer;
             Client5001.RecognizeInputBytes = GetDetectors;
-            Client5001.ClientEvent += (message) => { ElapsedTime5001 = 0; lastTime = DateTime.Now; };            
+            Client5001.ClientEvent += (message) => 
+            { 
+                ElapsedTime5001 = 0;
+                lastTime = DateTime.Now;
+                if (!Client5001.Connected) IsLoging = false;
+            };            
         } 
         #endregion
     }

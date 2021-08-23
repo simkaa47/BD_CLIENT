@@ -22,6 +22,7 @@
     <Window.Resources>
         <!--#region     Конвертеры-->
         <conv:BitColorConv x:Key="BitToColor"/>
+        <conv:IsStringNotNullConv x:Key="StringToBool"/>
         <!--#endregion-->
         <ControlTemplate TargetType="Button" x:Key="ButtonTemplate">
             <Button x:Name="btn" Background="{TemplateBinding Tag, Converter={StaticResource BitToColor}}" Margin="5" Command="{TemplateBinding Command}">
@@ -48,13 +49,13 @@
                         <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="0.5*"></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
+                        <RowDefinition Height="0.35*"></RowDefinition>
+                        <RowDefinition Height="0.75*"></RowDefinition>
+                        <RowDefinition Height="0.75*" ></RowDefinition>
+                        <RowDefinition Height="0.5*" ></RowDefinition>
                         <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="0.75*"></RowDefinition>
+                        <RowDefinition Height="0.75*"></RowDefinition>
 
                     </Grid.RowDefinitions>
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">IP адрес платы детекторов</Label>
@@ -99,7 +100,8 @@
                             </TextBlock>
                         </Button>
                     </Grid>
-                    <ListBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3">
+                    <!--#region Параметры платы -->
+                    <ListBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="2">
                         <!--#region Количество сенсоров -->
                         <ListBoxItem HorizontalContentAlignment="Stretch" >
                             <DockPanel>
@@ -168,7 +170,7 @@
                         <ListBoxItem HorizontalContentAlignment="Stretch" >
                             <DockPanel>
                                 <Label DockPanel.Dock="Left">Время между данными детекторов, мс</Label>
-                                
+
                                 <TextBox IsEnabled="False" Width="80" VerticalContentAlignment="Center"  
                                          HorizontalContentAlignment="Center" 
                                          HorizontalAlignment="Right" 
@@ -178,13 +180,50 @@
                         </ListBoxItem>
                         <!--#endregion-->
                     </ListBox>
+                    <!--#endregion-->
+                    <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">                        
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition ></ColumnDefinition>
+                            <ColumnDefinition Width="0.19*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Border Margin="5" BorderBrush="Black" BorderThickness="1">
+                            <TextBlock  x:Name="LogPath" Text="{Binding LogPath, Mode=TwoWay}"></TextBlock>                            
+                        </Border>
+                        <Button Grid.Column="1" Template="{StaticResource ButtonTemplate}" Click="BrowseLogPath">Browse</Button>
+                        <ListBox Grid.Row="1">
+                            <ListBoxItem HorizontalContentAlignment="Stretch">
+                                <DockPanel>
+                                    <Label DockPanel.Dock="Left">Период логирования, мс</Label>
+                                    <TextBox x:Name="WriteBtn"
+                                             DockPanel.Dock="Right"
+                                             HorizontalContentAlignment="Center"
+                                             HorizontalAlignment="Right"
+                                             VerticalAlignment="Center"
+                                             Width="50"
+                                             Text="{Binding LogPeriod}"></TextBox>                                  
+                                    
+                                </DockPanel>
+                            </ListBoxItem>
+                        </ListBox>
+                        <Button Grid.Column="1" Grid.Row="1"
+                                IsEnabled="{Binding ElementName=LogPath, Path=Text, Converter={StaticResource StringToBool}}"
+                                Template="{StaticResource ButtonTemplate}"
+                                Tag="{Binding IsLoging}"
+                                Command="{Binding StartStopLogCommand}">Запись</Button>
+                    </Grid>
+                    
+                    
                     <Grid Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="3">
                         <Label>Состояние подключений к портам:</Label>
                         <Border   BorderBrush="Black" BorderThickness="1" Margin="5,20,5,5">
                             <ScrollViewer  >
                                 <TextBlock   Text="{Binding EventMessage}" TextWrapping="Wrap" ></TextBlock>
                             </ScrollViewer>
-                        </Border>
+                        </Border>                        
                     </Grid>
 
 

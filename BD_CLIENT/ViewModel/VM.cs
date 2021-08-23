@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using BD_CLIENT.Infrastructure;
@@ -13,6 +14,8 @@ namespace BD_CLIENT.ViewModel
         {
             Model.Client5000.ClientEvent += UpdateMessage;
             Model.Client5001.ClientEvent += UpdateMessage;
+            Model.LogEvent += UpdateMessage;
+            Model.LogEvent += (str) => IsLoging = Model.IsLoging;
             Model.Port5000AnswerEvent += Port5000AnswerUpdate;
             Model.ReceiveDetHandler += UpdateDetectorsValue;
         }
@@ -71,6 +74,14 @@ namespace BD_CLIENT.ViewModel
         public RelayCommand StopConstScanCommand
         {
             get => _stopConstScanCommand ?? (_stopConstScanCommand = new RelayCommand(p => Model.StopConstScan(), p => true));
+        }
+        #endregion
+
+        #region Команда старт-стоп логирования
+        RelayCommand _startStopLogCommand;
+        public RelayCommand StartStopLogCommand
+        {
+            get => _startStopLogCommand ?? (_startStopLogCommand = new RelayCommand(p => Model.StartSopLog(LogPath), p => true));            
         }
         #endregion
 
@@ -228,6 +239,37 @@ namespace BD_CLIENT.ViewModel
         }
         #endregion
 
+        #region Путь логирования
+        string _logPath;
+        public string LogPath
+        {
+            get => _logPath;
+            set => Set(ref _logPath, value); 
+        }
+        #endregion
+
+        #region Флаг логирования
+        bool _isLoging;
+        public bool IsLoging
+        {
+            get => _isLoging;
+            set => Set(ref _isLoging, value);
+        }
+        #endregion
+
+        #region Интервал логирования
+        int _logPeriod;
+        public int LogPeriod
+        {
+            get => Model.LogPeriod;
+            set
+            {
+                Model.LogPeriod = value;
+                Set(ref _logPeriod, Model.LogPeriod);
+            }
+        }
+        #endregion
+
         #region Обновить строку состояния
         void UpdateMessage(string message)
         {
@@ -256,6 +298,8 @@ namespace BD_CLIENT.ViewModel
             ElapsedTimePacket5001 = Model.ElapsedTime5001;
         }
         #endregion
+
+        
 
 
 
