@@ -219,6 +219,15 @@ namespace BD_CLIENT.ViewModel
         }
         #endregion
 
+        #region Прошло времени между пакетами
+        double _elapsedTimePacket5001;
+        public double ElapsedTimePacket5001
+        {
+            get => _elapsedTimePacket5001;
+            private set { Set(ref _elapsedTimePacket5001, value); }
+        }
+        #endregion
+
         #region Обновить строку состояния
         void UpdateMessage(string message)
         {
@@ -244,6 +253,7 @@ namespace BD_CLIENT.ViewModel
                 dataPoints.Add(Model.Detectors[i]);
             }                       
             Detectors = dataPoints;
+            ElapsedTimePacket5001 = Model.ElapsedTime5001;
         }
         #endregion
 

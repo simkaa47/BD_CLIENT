@@ -38,6 +38,14 @@ namespace BD_CLIENT.Models
         public string Port5000Answer { get; set; }
         #endregion
 
+        #region Прошло времени между пакетами от БД
+        /// <summary>
+        /// Прошло времени между пакетами от БД
+        /// </summary>
+        public double ElapsedTime5001 { get; private set; }
+        DateTime lastTime;
+        #endregion
+
         #region Данные детекторов
         public DataPoint[] Detectors { get; set; } = new DataPoint[1000];
         #endregion
@@ -230,6 +238,8 @@ namespace BD_CLIENT.Models
                             var dp = new DataPoint { x = (i - 8) / 2, y = BitConverter.ToUInt16(bytes, 0) };
                             Detectors[(i-8)/2] = dp;
                         }
+                        ElapsedTime5001 = (DateTime.Now - lastTime).TotalMilliseconds;
+                        lastTime = DateTime.Now;
                         ReceiveDetHandler?.Invoke(NumSens);
                     }
                     processing = false;
@@ -261,6 +271,7 @@ namespace BD_CLIENT.Models
             Client5001 = new ClientBase();
             Client5000.RecognizeInputBytes = GetAnswer;
             Client5001.RecognizeInputBytes = GetDetectors;
+            Client5001.ClientEvent += (message) => { ElapsedTime5001 = 0; lastTime = DateTime.Now; };            
         } 
         #endregion
     }

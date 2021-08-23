@@ -10,11 +10,11 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    
+
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding CloseAllCommCommand}"/>
-        </i:EventTrigger> 
+        </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.DataContext>
         <VM:VM/>
@@ -30,11 +30,15 @@
                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"                                
                                 Content="{TemplateBinding Content}">
                 </ContentControl>
-            </Button>            
+            </Button>
         </ControlTemplate>
     </Window.Resources>
     <Grid>
-        <TabControl TabStripPlacement="Left">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
+        <TabControl TabStripPlacement="Left" Grid.RowSpan="2">
             <TabItem Header="Управление">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -51,7 +55,7 @@
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
-                       
+
                     </Grid.RowDefinitions>
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">IP адрес платы детекторов</Label>
                     <Viewbox Grid.Row="0" Grid.Column="1" >
@@ -59,7 +63,7 @@
                               Text="{Binding IP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged }"
                               VerticalContentAlignment="Center"
                               HorizontalContentAlignment="Center" ></TextBox>
-                    </Viewbox>                    
+                    </Viewbox>
                     <Button Grid.Row="1"  Template="{StaticResource ButtonTemplate}" Content="Порт 5000" Tag="{Binding Connected5000}"
                             Command="{Binding Connect5000Command}"></Button>
                     <Button Grid.Row="1" Grid.Column="1"  Template="{StaticResource ButtonTemplate}" Content="Порт 5001" Tag="{Binding Connected5001}"
@@ -91,7 +95,7 @@
                                 IsEnabled="{Binding Connected5000}"
                                 Command="{Binding GetSysStatusCommand}">
                             <TextBlock Text="Получить статус системы"
-                                       TextWrapping="Wrap">                                
+                                       TextWrapping="Wrap">
                             </TextBlock>
                         </Button>
                     </Grid>
@@ -160,6 +164,19 @@
                             </DockPanel>
                         </ListBoxItem>
                         <!--#endregion-->
+                        <!--#region Интервал между пакетами от порта 5001 -->
+                        <ListBoxItem HorizontalContentAlignment="Stretch" >
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left">Время между данными детекторов, мс</Label>
+                                
+                                <TextBox IsEnabled="False" Width="80" VerticalContentAlignment="Center"  
+                                         HorizontalContentAlignment="Center" 
+                                         HorizontalAlignment="Right" 
+                                         Text="{Binding ElapsedTimePacket5001, Mode=OneWay}"></TextBox>
+
+                            </DockPanel>
+                        </ListBoxItem>
+                        <!--#endregion-->
                     </ListBox>
                     <Grid Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="3">
                         <Label>Состояние подключений к портам:</Label>
@@ -169,21 +186,21 @@
                             </ScrollViewer>
                         </Border>
                     </Grid>
-                    
-                    
+
+
                     <Grid Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="4">
                         <Label>Ответы от порта 5000:</Label>
                         <Border BorderBrush="Black" BorderThickness="1" Margin="5,20,5,5">
                             <ScrollViewer >
                                 <TextBlock TextWrapping="Wrap" Text="{Binding PortAnswer5000}"></TextBlock>
                             </ScrollViewer>
-                            
+
                         </Border>
-                        
-                    </Grid>                  
-                    
+
+                    </Grid>
+
                 </Grid>
-                
+
             </TabItem>
             <TabItem Header="Гистограмма">
                 <Grid>

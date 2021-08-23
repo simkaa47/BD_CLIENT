@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace BD_CLIENT.Models
         public bool Connected { get; private set; }
         #endregion
 
-        bool connecting;
+        bool Сonnecting { get; set; }        
 
         #region Ip адрес
         string ip = "";
@@ -71,32 +72,32 @@ namespace BD_CLIENT.Models
                 Ip = ip;
                 Port = port;
                 client = new TcpClient();
-                connecting = true;
+                Сonnecting = true;
                 ClientEvent?.Invoke($"Выполняется подключение к {Ip}:{Port}");
                 client.Connect(Ip, Port);
                 Connected = client.Connected;
-                connecting = false;
+                Сonnecting = false;
                 ClientEvent?.Invoke($"Произведено подключение к {Ip}:{Port}");
-                stream = client.GetStream();
+                stream = client.GetStream();                
+                
                 while (Connected)
-                {
-                    Read();
+                {                    
+                    Read();                    
                 }
 
             }
             catch (Exception ex)
             {
-                if (Connected|| connecting)
+                if (Connected|| Сonnecting)
                 {
                     Connected = false;
-                    connecting = false;
+                    Сonnecting = false;
                     ClientEvent?.Invoke($"{Ip}:{Port}: {ex.Message}"); 
                 }
             }
             finally
             { 
-                client?.Close();
-               
+                client?.Close();                
             }
         } 
         #endregion
